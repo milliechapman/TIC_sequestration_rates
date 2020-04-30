@@ -8,7 +8,9 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T,
-                      results = "hide")
+                      results = 'hide',
+                      warning=FALSE,
+                      message=FALSE)
 ```
 
 Just a first pass at calcualting rates of sequestration for trees in crop and pasture lands. 
@@ -60,9 +62,9 @@ GR_crop <- growth_rates %>% filter(CP == "crop") %>%
 crop_country_GR <- crop_hist %>% left_join(GR_crop) %>%
   mutate(b1_1 = b1_1/2) %>%
   filter(b1_1 < 6) %>%
-  mutate(annual_sequestration = b1_2 * mean) %>% # number of 1 ha pixels * GR per ha
+  mutate(annual_sequestration = b1_2 * .09 * mean) %>% # number of 1 ha pixels * GR per ha
   group_by(NAME_EN) %>%
-  summarise(annual_sequestration = sum(annual_sequestration)/10^6) %>%
+  summarise(annual_sequestration = sum(annual_sequestration)/10^9/10) %>%
   mutate(CP = "crop")
 ```
 
@@ -73,16 +75,35 @@ GR_pasture <- growth_rates %>% filter(CP == "pasture") %>%
 pasture_country_GR <- pasture_hist %>% left_join(GR_pasture) %>%
   mutate(b1_1 = b1_1/2) %>%
   filter(b1_1 < 6) %>%
-  mutate(annual_sequestration = b1_2 * mean) %>% # number of 1 ha pixels * GR per ha
+  mutate(annual_sequestration = b1_2 * .09 * mean) %>% # number of 1 ha pixels * GR per ha
   group_by(NAME_EN) %>%
-  summarise(annual_sequestration = sum(annual_sequestration)/10^6) %>%
+  summarise(annual_sequestration = sum(annual_sequestration)/10^9/10) %>%
   mutate(CP = "pasture")
 ```
 
 ```{r}
 simple_SR <- bind_rows(pasture_country_GR, crop_country_GR) %>%
   spread(CP, annual_sequestration) %>%
-  mutate(total = crop + pasture)
+  mutate(total = crop + pasture) 
+
+levels(simple_SR$NAME_EN) <- c(levels(simple_SR$NAME_EN), "China")
+simple_SR$NAME_EN[simple_SR$NAME_EN == "People's Republic of China"] <- 'China'
+```
+
+```{r}
+write_csv(simple_SR, "../output/simple_SR..csv")
+```
+
+```{r caption = "prelimary analysis of sequestration rates by country"}
+simple_SR %>% gather("CP", "sequestration", -c(NAME_EN, total)) %>%
+  arrange(-total) %>%
+  top_n(20) %>%
+  ggplot(aes(reorder(NAME_EN, total), sequestration)) +
+  geom_col(aes(fill = CP), width = 0.75) + coord_flip() + labs(x = "",y = "Sequestration Rate (Pg C yr-1)", sep = "") + theme_bw() +
+  theme(legend.title = element_blank()) + theme(legend.position = c(0.75, 0.2)) + 
+    theme(legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid')) +
+  scale_fill_manual(values = c("lightgrey", "darkgrey"))
+
 ```
 
 
