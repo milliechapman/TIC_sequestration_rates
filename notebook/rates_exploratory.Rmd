@@ -1,0 +1,89 @@
+---
+title: "Exploring sequestration rates for trees in crop and pasture lands (global)"
+author: "Millie Chapman"
+date: "4/29/2020"
+bibliography: growth_rates.bib
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,
+                      results = "hide")
+```
+
+Just a first pass at calcualting rates of sequestration for trees in crop and pasture lands. 
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(splitstackshape)
+library(stringr)
+```
+
+
+Pull in mean growth rates from [@feliciano2018agroforestry]
+
+```{r}
+growth_rates <- read_csv("../data/growth_rates.csv") %>% 
+  group_by(REGION_UN, CP) %>%
+  summarize(mean = mean(mean))
+
+```
+
+
+Read in standing biomass histograms and do some data cleaning
+```{r}
+vars<-c("NAME_EN", "min", "BIOME_NAME", "ECONOMY", "POP_EST", "INCOME_GRP", "ISO_A3", "REGION_UN")
+
+crop_hist <- read_csv("../data/crop_hist_25.csv") %>%
+  select(vars) %>% drop_na() %>%
+  mutate(b1 = str_sub(min, 2, -2)) %>%
+  mutate(b1 = as.character(b1))
+
+crop_hist <- cSplit(crop_hist, "b1", sep = ",", direction = "long")
+crop_hist <- cSplit(crop_hist, "b1", sep = "=", direction = "wide")
+
+pasture_hist <- read_csv("../data/pasture_hist_25.csv") %>%
+  select(vars) %>% drop_na() %>%
+  mutate(b1 = str_sub(min, 2, -2)) %>%
+  mutate(b1 = as.character(b1))
+
+pasture_hist <- cSplit(pasture_hist, "b1", sep = ",", direction = "long")
+pasture_hist <- cSplit(pasture_hist, "b1", sep = "=", direction = "wide")
+```
+
+
+```{r}
+GR_crop <- growth_rates %>% filter(CP == "crop") %>%
+  select(REGION_UN, mean)
+
+crop_country_GR <- crop_hist %>% left_join(GR_crop) %>%
+  mutate(b1_1 = b1_1/2) %>%
+  filter(b1_1 < 6) %>%
+  mutate(annual_sequestration = b1_2 * mean) %>% # number of 1 ha pixels * GR per ha
+  group_by(NAME_EN) %>%
+  summarise(annual_sequestration = sum(annual_sequestration)/10^6) %>%
+  mutate(CP = "crop")
+```
+
+```{r}
+GR_pasture <- growth_rates %>% filter(CP == "pasture") %>%
+  select(REGION_UN, mean)
+
+pasture_country_GR <- pasture_hist %>% left_join(GR_pasture) %>%
+  mutate(b1_1 = b1_1/2) %>%
+  filter(b1_1 < 6) %>%
+  mutate(annual_sequestration = b1_2 * mean) %>% # number of 1 ha pixels * GR per ha
+  group_by(NAME_EN) %>%
+  summarise(annual_sequestration = sum(annual_sequestration)/10^6) %>%
+  mutate(CP = "pasture")
+```
+
+```{r}
+simple_SR <- bind_rows(pasture_country_GR, crop_country_GR) %>%
+  spread(CP, annual_sequestration) %>%
+  mutate(total = crop + pasture)
+```
+
+
+## References

@@ -1,0 +1,21 @@
+﻿continent,agroforestry_system,mean,variance,n,CP,REGION_UN
+africa,Agrisilvicultural,0.88,0.14,5,pasture,Africa
+africa,Homegarden,0.52,0.07,5,crop,Africa
+africa,Improved fallows,12.95,20.12,17,crop,Africa
+africa,Shadow systems,2.27,2.36,18,crop,Africa
+africa,Silvopastoral,0.15,,1,pasture,Africa
+Asia,Agrisilvicultural,1.13,2.52,4,crop,Asia
+Asia,Homegarden,2.77,5.8,27,crop,Asia
+Asia,Improved fallows,2.9,0.08,2,crop,Asia
+Asia,Silvopastoral,2.65,4.35,7,pasture,Asia
+Australia,Silvopastoral,0.79,,1,pasture,Oceana
+Latin_america,Agrisilvicultural,2.94,5.56,6,crop,Americas
+Latin_america,Boundary plantings,9.14,54.72,5,crop,Americas
+Latin_america,Homegarden,3.25,,1,crop,Americas
+Latin_america,Improved fallows,5.55,5.45,2,crop,Americas
+Latin_america,Shadow systems,2.87,2.79,22,crop,Americas
+Latin_america,Silvopastoral,2.29,0.29,3,pasture,Americas
+North_america,Boundary plantings,1.12,,1,crop,Americas
+North_america,Silvopastoral,0.52,,1,pasture,Americas
+North_america,Boundary plantings,1.12,,1,crop,Europe
+North_america,Silvopastoral,0.52,,1,pasture,Europe
