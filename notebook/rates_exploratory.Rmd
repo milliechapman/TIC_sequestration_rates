@@ -91,7 +91,7 @@ simple_SR$NAME_EN[simple_SR$NAME_EN == "People's Republic of China"] <- 'China'
 ```
 
 ```{r}
-write_csv(simple_SR, "../output/simple_SR..csv")
+write_csv(simple_SR, "../output/simple_SR.csv")
 ```
 
 ```{r caption = "prelimary analysis of sequestration rates by country"}
