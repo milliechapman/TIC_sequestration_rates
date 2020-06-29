@@ -1,0 +1,38 @@
+---
+title: "potential"
+author: "Millie Chapman"
+date: "12/21/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(splitstackshape)
+library(stringr)
+rm(list = ls())
+```
+
+```{r}
+potential <- read_csv("../data/summary_potential_standing.csv") %>%
+  select("NAME_EN", "ISO_A3", "potential_crop", "potential_pasture", "total_potential") %>%
+  mutate(
+    potential_crop = potential_crop/10^6,
+    potential_pasture = potential_pasture/10^6,
+    total_potential = total_potential/10^6
+  ) %>%
+  mutate(
+    rate10perc_20yrs_p <- potential_pasture*.10/20,
+    rate10perc_20yrs_c <- potential_crop*.1/20,
+    rate10perc_20yrs_total <- rate10perc_20yrs_p + rate10perc_20yrs_c, 
+    rate50perc_20yrs_p <- potential_pasture*.5/20,
+    rate50perc_20yrs_c <- potential_crop*.5/20,
+    rate50perc_20yrs_total <- rate50perc_20yrs_p + rate50perc_20yrs_c,
+    rate100perc_20yrs_p <- potential_pasture/20,
+    rate100perc_20yrs_c <- potential_crop/20,
+    rate100perc_20yrs_total <- rate100perc_20yrs_p +rate100perc_20yrs_c
+  ) %>%
+  select(1:2, 6:14)
+
+write.csv(potential, "../output/SR_bypotential.csv")
+```
